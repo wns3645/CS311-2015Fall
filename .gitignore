@@ -11,6 +11,9 @@
 *.pdf
 
 
+*.DS_Store
+
+
 build/
 
 !lib.a
