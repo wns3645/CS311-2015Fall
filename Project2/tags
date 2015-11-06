@@ -1,0 +1,66 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+BYTES_PER_WORD	util.h	/^#define BYTES_PER_WORD	/;"	d
+CPU_State	util.h	/^} CPU_State;$/;"	t	typeref:struct:CPU_State_Struct
+CPU_State_Struct	util.h	/^typedef struct CPU_State_Struct {$/;"	s
+CURRENT_STATE	util.c	/^CPU_State CURRENT_STATE;$/;"	v
+FALSE	util.h	/^#define FALSE /;"	d
+INSTRUCTION_COUNT	util.c	/^int INSTRUCTION_COUNT;$/;"	v
+INST_INFO	util.c	/^instruction *INST_INFO;$/;"	v
+MEM_DATA_SIZE	util.h	/^#define MEM_DATA_SIZE	/;"	d
+MEM_DATA_START	util.h	/^#define MEM_DATA_START	/;"	d
+MEM_NREGIONS	util.c	/^#define MEM_NREGIONS /;"	d	file:
+MEM_REGIONS	util.c	/^mem_region_t MEM_REGIONS[] = {$/;"	v
+MEM_TEXT_SIZE	util.h	/^#define MEM_TEXT_SIZE	/;"	d
+MEM_TEXT_START	util.h	/^#define MEM_TEXT_START	/;"	d
+MIPS_REGS	util.h	/^#define MIPS_REGS	/;"	d
+NUM_INST	util.c	/^int NUM_INST;$/;"	v
+PC	util.h	/^    uint32_t PC;		\/* program counter *\/$/;"	m	struct:CPU_State_Struct
+REGS	util.h	/^    uint32_t REGS[MIPS_REGS];	\/* register file. *\/$/;"	m	struct:CPU_State_Struct
+RUN_BIT	util.c	/^int RUN_BIT;		\/* run bit *\/$/;"	v
+TRUE	util.h	/^#define TRUE /;"	d
+_PARSE_H_	parse.h	/^#define _PARSE_H_$/;"	d
+_RUN_H_	run.h	/^#define _RUN_H_$/;"	d
+_UTIL_H_	util.h	/^#define _UTIL_H_$/;"	d
+cycle	util.c	/^void cycle() {                                                $/;"	f
+data_size	parse.c	/^int data_size;$/;"	v
+fromBinary	util.c	/^int fromBinary(char *s) {$/;"	f
+func_code	util.h	/^    short func_code;$/;"	m	struct:inst_s
+go	util.c	/^void go() {$/;"	f
+imm	util.h	/^	        short imm;$/;"	m	union:inst_s::__anon1::__anon2::__anon3
+init_inst_info	util.c	/^void init_inst_info() {$/;"	f
+init_memory	util.c	/^void init_memory() {                                           $/;"	f
+initialize	cs311.c	/^void initialize(char *program_filename) { $/;"	f
+inst_s	util.h	/^typedef struct inst_s {$/;"	s
+instruction	util.h	/^} instruction;$/;"	t	typeref:struct:inst_s
+load_program	cs311.c	/^void load_program(char *program_filename) {                   $/;"	f
+main	cs311.c	/^int main(int argc, char *argv[]) {                              $/;"	f
+mdump	util.c	/^void mdump(int start, int stop) {          $/;"	f
+mem	util.h	/^    uint8_t *mem;$/;"	m	struct:__anon5
+mem_read_32	util.c	/^uint32_t mem_read_32(uint32_t address) {$/;"	f
+mem_region_t	util.h	/^} mem_region_t;$/;"	t	typeref:struct:__anon5
+mem_write_32	util.c	/^void mem_write_32(uint32_t address, uint32_t value) {$/;"	f
+opcode	util.h	/^    short opcode;$/;"	m	struct:inst_s
+parsing_data	parse.c	/^void parsing_data(const char *buffer, const int index) {$/;"	f
+parsing_instr	parse.c	/^instruction parsing_instr(const char *buffer, const int index) {$/;"	f
+process_instruction	run.c	/^void process_instruction(){$/;"	f
+r	util.h	/^		} r;$/;"	m	union:inst_s::__anon1::__anon2::__anon3	typeref:struct:inst_s::__anon1::__anon2::__anon3::__anon4
+r_i	util.h	/^	    } r_i;$/;"	m	struct:inst_s::__anon1::__anon2	typeref:union:inst_s::__anon1::__anon2::__anon3
+r_i	util.h	/^	} r_i;$/;"	m	union:inst_s::__anon1	typeref:struct:inst_s::__anon1::__anon2
+r_t	util.h	/^    } r_t;$/;"	m	struct:inst_s	typeref:union:inst_s::__anon1
+rd	util.h	/^		    unsigned char rd;$/;"	m	struct:inst_s::__anon1::__anon2::__anon3::__anon4
+rdump	util.c	/^void rdump() {                               $/;"	f
+rs	util.h	/^	    unsigned char rs;$/;"	m	struct:inst_s::__anon1::__anon2
+rt	util.h	/^	    unsigned char rt;$/;"	m	struct:inst_s::__anon1::__anon2
+run	util.c	/^void run(int num_cycles) {$/;"	f
+shamt	util.h	/^		    unsigned char shamt;$/;"	m	struct:inst_s::__anon1::__anon2::__anon3::__anon4
+size	util.h	/^    uint32_t start, size;$/;"	m	struct:__anon5
+start	util.h	/^    uint32_t start, size;$/;"	m	struct:__anon5
+str_split	util.c	/^char** str_split(char *a_str, const char a_delim) {$/;"	f
+target	util.h	/^        uint32_t target;$/;"	m	union:inst_s::__anon1
+text_size	parse.c	/^int text_size;$/;"	v
+value	util.h	/^    uint32_t value;$/;"	m	struct:inst_s

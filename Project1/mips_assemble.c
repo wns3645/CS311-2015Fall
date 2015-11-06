@@ -538,7 +538,7 @@ void inst_convert(char* buff, char* answer, LABEL* data_table, int data_index, L
 						}
 				}
 		}
-		//J format
+		
 		//beq, bne
 		else if(!strcmp(inst, "beq") || !strcmp(inst, "bne"))
 		{
@@ -569,6 +569,8 @@ void inst_convert(char* buff, char* answer, LABEL* data_table, int data_index, L
 				answer[32] = '\0';
 				count = 0;
 		}
+
+		//J format
 		//j, jal
 		else if(!strcmp(inst, "j") || !strcmp(inst, "jal"))
 		{
