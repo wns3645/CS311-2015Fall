@@ -59,6 +59,7 @@ void load_program(char *program_filename) {
 	    //initial memory allocation of text segment
 	    INST_INFO = malloc(sizeof(instruction)*NUM_INST);
 	    init_inst_info(NUM_INST);
+
 	}
 
 	else if(flag == 1)
@@ -86,6 +87,8 @@ void load_program(char *program_filename) {
 	flag++;
     }
     CURRENT_STATE.PC = MEM_TEXT_START;
+    init_state_register();
+  
     //printf("Read %d words from program into memory.\n\n", ii/4);
 }
 
@@ -104,6 +107,8 @@ void initialize(char *program_filename) {
     load_program(program_filename);
     //NEXT_STATE = CURRENT_STATE;
     RUN_BIT = TRUE;
+	INSTRUCTION_COUNT = 0;
+	CYCLE_COUNT = 0;
 }
 
 /***************************************************************/
@@ -123,11 +128,14 @@ int main(int argc, char *argv[]) {
     int debug_set = 0;
     int num_inst_set = 0;
     int pipe_dump_set = 0;
+	FORWARDING_SET = 0;
+	NO_BRANCH_PREDICTION_SET = 0;
 
     /* Error Checking */
     if (argc < 2)
     {
-	printf("Error: usage: %s [-m addr1:addr2] [-d] [-n num_instr] inputBinary\n", argv[0]);
+	printf("Error: usage: %s [-nobp] [-f] [-m addr1:addr2] [-d] [-p] [-n num_instr] inputBinary\n", argv[0]);    
+//	printf("Error: usage: %s [-m addr1:addr2] [-d] [-n num_instr] inputBinary\n", argv[0]);
 	exit(1);
     }
 
@@ -152,6 +160,10 @@ int main(int argc, char *argv[]) {
 	}
 	else if(strcmp(argv[count], "-p") == 0)
 	    pipe_dump_set = 1;
+	else if(strcmp(argv[count], "-f" == 0))
+		FORWARDING_SET = 1;
+	else if(strcmp(argv[count], "-nobp" == 0))
+		NO_BRANCH_PREDICTION_SET = 1;
 	else{
 	    printf("Error: usage: %s [-nobp] [-f] [-m addr1:addr2] [-d] [-p] [-n num_instr] inputBinary\n", argv[0]);
 	    //You must add nobp and f option yourself
@@ -163,24 +175,26 @@ int main(int argc, char *argv[]) {
     if(num_inst_set) i = num_inst;
 
     if(debug_set){
-	printf("Simulating for %d cycles...\n\n", i);
+	printf("Simulating for %d instructions...\n\n", i);
 
-	for(; i > 0; i--){
+	while (INSTRUCTION_COUNT < i){
 	    if (RUN_BIT == FALSE){
 	    	printf("Simulator halted\n\n");
 		break;
 	    }
 	    cycle();
-
+		CYCLE_COUNT ++;
 	    if(pipe_dump_set) pdump();
 	    rdump();	
 	    if(mem_dump_set) mdump(addr1, addr2);
 	}
     }
     else{
-	run(i);
+	
+	run(i, pipe_dump_set);
 	rdump();
-
+	
+	printf("inst count : %d\n", INSTRUCTION_COUNT);
 	if(mem_dump_set) mdump(addr1, addr2);
     }
 

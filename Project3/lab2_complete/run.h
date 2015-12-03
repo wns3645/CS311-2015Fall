@@ -111,6 +111,7 @@
 
 /* functions */
 instruction*	get_inst_info(uint32_t pc);
+instruction 	get_inst(uint32_t pc);
 void		process_instruction();
 
 #endif

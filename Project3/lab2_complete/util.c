@@ -21,12 +21,33 @@ mem_region_t MEM_REGIONS[] = {
 
 #define MEM_NREGIONS (sizeof(MEM_REGIONS)/sizeof(mem_region_t))
 
+
+if_id IF_ID;
+id_ex ID_EX;
+ex_mem EX_MEM;
+mem_wb MEM_WB;
+int Jump_signal;
+int PCsrc;
+uint32_t Jump_address;
+int PCWrite;
+int IF_IDWrite;
+int EX_MEMRegWrite;
+int MEM_WBRegWrite;
+int EX_MEMRegisterRd;
+int MEM_WBRegisterRd;
+
+
+int FORWARDING_SET;
+int NO_BRANCH_PREDICTION_SET;
+
+
 /***************************************************************/
 /* CPU State info.                                             */
 /***************************************************************/
 CPU_State CURRENT_STATE;
 int RUN_BIT;		/* run bit */
 int INSTRUCTION_COUNT;
+int CYCLE_COUNT;
 
 /***************************************************************/
 /* CPU State info.                                             */
@@ -178,7 +199,33 @@ void mem_write_32(uint32_t address, uint32_t value)
 /***************************************************************/
 void cycle() {                                                
     process_instruction();
-    INSTRUCTION_COUNT++;
+}
+
+
+/***************************************************************/
+/*                                                             */
+/* Procedure : pdump                                           */
+/*                                                             */
+/* Purpose   : Dump current pipeline PC state                  */   
+/*                                                             */
+/***************************************************************/
+void pdump() {                               
+    int k; 
+
+    printf("Current pipeline PC state :\n");
+    printf("-------------------------------------\n");
+    printf("CYCLE %d:", CYCLE_COUNT );
+    for(k = 0; k < 5; k++)
+    {
+    	if(CURRENT_STATE.PIPE[k])
+	    printf("0x%08x", CURRENT_STATE.PIPE[k]);
+	else
+	    printf("          ");
+	
+	if( k != PIPE_STAGE - 1 )
+	    printf("|");
+    }
+    printf("\n\n");
 }
 
 /***************************************************************/
@@ -188,7 +235,7 @@ void cycle() {
 /* Purpose   : Simulate MIPS for n cycles                      */
 /*                                                             */
 /***************************************************************/
-void run(int num_cycles) {
+void run(int num_cycles, int pdump_set) {
     int i;
 
     if (RUN_BIT == FALSE) {
@@ -197,12 +244,17 @@ void run(int num_cycles) {
     }
 
     printf("Simulating for %d cycles...\n\n", num_cycles);
-    for (i = 0; i < num_cycles; i++) {
+    while(INSTRUCTION_COUNT < num_cycles) {
 	if (RUN_BIT == FALSE) {
 	    printf("Simulator halted\n\n");
 	    break;
 	}
 	cycle();
+	CYCLE_COUNT++;	
+	printf("inst count = : %d, cycle num : %d\n", INSTRUCTION_COUNT, num_cycles);
+	if(pdump_set){
+		pdump();
+	}
     }
 }
 
@@ -265,32 +317,6 @@ void rdump() {
 
 /***************************************************************/
 /*                                                             */
-/* Procedure : pdump                                           */
-/*                                                             */
-/* Purpose   : Dump current pipeline PC state                  */   
-/*                                                             */
-/***************************************************************/
-void pdump() {                               
-    int k; 
-
-    printf("Current pipeline PC state :\n");
-    printf("-------------------------------------\n");
-    printf("CYCLE %d:", INSTRUCTION_COUNT );
-    for(k = 0; k < 5; k++)
-    {
-    	if(CURRENT_STATE.PIPE[k])
-	    printf("0x%08x", CURRENT_STATE.PIPE[k]);
-	else
-	    printf("          ");
-	
-	if( k != PIPE_STAGE - 1 )
-	    printf("|");
-    }
-    printf("\n\n");
-}
-
-/***************************************************************/
-/*                                                             */
 /* Procedure : init_memory                                     */
 /*                                                             */
 /* Purpose   : Allocate and zero memory                        */
@@ -328,3 +354,70 @@ void init_inst_info()
 	INST_INFO[i].r_t.target = 0;
     }
 }
+
+void init_state_register()
+{
+    
+    IF_ID.Instr.value = 0;
+    IF_ID.Instr.opcode = 0;
+    IF_ID.Instr.func_code = 0;
+    IF_ID.Instr.r_t.r_i.rs = 0;
+    IF_ID.Instr.r_t.r_i.rt = 0;
+    IF_ID.Instr.r_t.r_i.r_i.r.rd = 0;
+    IF_ID.Instr.r_t.r_i.r_i.imm = 0;
+    IF_ID.Instr.r_t.r_i.r_i.r.shamt = 0;
+    IF_ID.Instr.r_t.target = 0;
+    
+
+    IF_ID.NPC = 0;
+    
+   
+    ID_EX.NPC = 0;
+    ID_EX.REG1_data = 0;
+    ID_EX.REG2_data = 0;
+    ID_EX.IMM = 0 ;
+    ID_EX.Rt_number = 0;
+    ID_EX.Rd_number = 0;
+	ID_EX.Rs_number = 0;
+
+    ID_EX.WB_RegWrite = 0;
+    ID_EX.WB_MemtoReg = 0;
+    ID_EX.M_Branch = 0;
+    ID_EX.M_MemRead = 0;
+    ID_EX.M_MemWrite = 0;
+    ID_EX.EX_RegDst = 0;
+    ID_EX.EX_ALUOp = 0;
+    ID_EX.EX_ALUSrc = 0;
+
+
+    EX_MEM.ALU_OUT = 0;
+    EX_MEM.BR_TARGET = 0;
+    EX_MEM.MEM_IN = 0;
+    EX_MEM.Destination_Register_number = 0;
+
+    EX_MEM.Zero = 0;
+    EX_MEM.WB_RegWrite = 0; 
+    EX_MEM.WB_MemtoReg = 0;
+    EX_MEM.M_Branch = 0;
+    EX_MEM.M_MemRead = 0;
+    EX_MEM.M_MemWrite = 0;
+
+    MEM_WB.ALU_OUT = 0;
+    MEM_WB.MEM_OUT = 0;
+    MEM_WB.Destination_Register_number = 0;
+
+    MEM_WB.WB_RegWrite = 0;
+    MEM_WB.WB_MemtoReg = 0;
+
+	EX_MEMRegWrite = 0;
+	MEM_WBRegWrite = 0;
+	EX_MEMRegisterRd = 0;
+	MEM_WBRegisterRd = 0;
+
+    PCsrc = 0;
+    Jump_signal = 0;
+    Jump_address = 0;
+	PCWrite = 1;
+	IF_IDWrite = 1;
+}
+
