@@ -77,7 +77,6 @@ typedef struct if_id_register {
 }if_id;
 
 typedef struct id_ex_register {
-    uint32_t NPC;
     uint32_t REG1_data;
     uint32_t REG2_data;
     uint32_t IMM;
@@ -99,15 +98,16 @@ typedef struct id_ex_register {
 
 typedef struct ex_mem_register{
     uint32_t ALU_OUT;
-    uint32_t BR_TARGET;
     uint32_t MEM_IN;
     uint32_t Destination_Register_number;
+
+	uint32_t BR_target;
 
     int Zero;
     int WB_RegWrite;
     int WB_MemtoReg;
     int M_Branch;
-    int M_MemRead;
+	int M_MemRead;
     int M_MemWrite;
 }ex_mem;
 
@@ -118,7 +118,8 @@ typedef struct mem_wb_register{
 
     int WB_RegWrite;
     int WB_MemtoReg;
-
+    int M_MemRead;
+	int M_Branch;
 }mem_wb;
 
 
@@ -144,15 +145,21 @@ extern mem_wb MEM_WB;
 extern int PCsrc;
 extern int Jump_signal;
 extern uint32_t Jump_address;
+extern uint32_t BR_target;
+
+
 
 /* For Control Stall instr */
 extern int PCWrite;
 extern int IF_IDWrite;
+extern int IF_FLUSH;
 
 extern int EX_MEMRegWrite;
 extern int EX_MEMRegisterRd;
 extern int MEM_WBRegWrite;
 extern int MEM_WBRegisterRd;
+extern int MEM_WBWritedata;
+extern int MEM_WBBranch;
 
 
 /* For PC * Registers */

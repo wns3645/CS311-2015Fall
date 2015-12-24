@@ -44,12 +44,24 @@ instruction get_inst(uint32_t pc)
 void IF_stage(){
 
 
+	if (NO_BRANCH_PREDICTION_SET ==1) {
+	if (EX_MEM.M_Branch == 1) {
+		CURRENT_STATE.PIPE[0] = 0;	
+	}
+	else if (MEM_WB.M_Branch == 1){
+		CURRENT_STATE.PIPE[0] = 0;
+	}
 
-	CURRENT_STATE.PIPE[0] = CURRENT_STATE.PC;
+	else{	
+		CURRENT_STATE.PIPE[0] = CURRENT_STATE.PC;
+	}
+	}
+	else
+		CURRENT_STATE.PIPE[0] = CURRENT_STATE.PC;
+
 
 	if(IF_IDWrite){
 		IF_ID.NPC = CURRENT_STATE.PC + BYTES_PER_WORD;
-
 		switch (Jump_signal)
 		{
 
@@ -68,22 +80,43 @@ void IF_stage(){
 				IF_ID.Instr = get_inst(CURRENT_STATE.PC);
 				break;
 		}
-	}
 
+	}
+	if (Jump_signal == 0){
+		switch (IF_FLUSH)
+		{
+
+			case 1:
+				IF_ID.Instr.value = 0;
+				IF_ID.Instr.opcode = 0;
+				IF_ID.Instr.func_code = 0;
+				IF_ID.Instr.r_t.r_i.rs = 0;
+				IF_ID.Instr.r_t.r_i.rt = 0;
+				IF_ID.Instr.r_t.r_i.r_i.r.rd = 0;
+				IF_ID.Instr.r_t.r_i.r_i.imm = 0;
+				IF_ID.Instr.r_t.r_i.r_i.r.shamt = 0;
+				IF_ID.Instr.r_t.target = 0;
+				break;
+			case 0:
+				if(IF_IDWrite)
+					IF_ID.Instr = get_inst(CURRENT_STATE.PC);
+				break;
+		}
+	}
 	uint32_t target1;
 	uint32_t target2;
 	
 	switch (PCsrc)
 	{
 		case 1:
-			target1 = EX_MEM.BR_TARGET;
+			target1 = BR_target;
 			break;
 		
 		case 0:
 			target1 = CURRENT_STATE.PC + BYTES_PER_WORD;
 			break;
 	}
-	
+
 	switch (Jump_signal)
 	{
 		case 0:
@@ -94,7 +127,7 @@ void IF_stage(){
 			target2 = Jump_address;
 			break;
 	}
-
+	
 	if (PCWrite){
 		CURRENT_STATE.PC = target2;
 	}
@@ -105,19 +138,15 @@ void IF_stage(){
 void ID_stage(){
 
 
-	if(PCWrite == 0) CURRENT_STATE.PIPE[1] = CURRENT_STATE.PIPE[1];
-	else CURRENT_STATE.PIPE[1] = CURRENT_STATE.PIPE[0];;
+	if(IF_FLUSH == 1) CURRENT_STATE.PIPE[1] = 0;
+	if(Jump_signal == 1) CURRENT_STATE.PIPE[1] = 0;
+	else if(PCWrite == 0) CURRENT_STATE.PIPE[1] = CURRENT_STATE.PIPE[1];
+	else CURRENT_STATE.PIPE[1] = CURRENT_STATE.PIPE[0];
 	//Hazard detection
 
-	printf("EX_MEM regwrite= = %d\n", EX_MEMRegWrite);
-	printf("EX_MEM. RegisterRd= %d\n", EX_MEMRegisterRd);
-	printf("ifid 의 RT = %d\n", RS(&IF_ID.Instr));
-	printf("ifid 의 Rs = %d\n", RT(&IF_ID.Instr));
-	printf("FORWARDING_SET = %d\n", FORWARDING_SET);
 	// Data Hazard for LW
 	if(ID_EX.M_MemRead && ((ID_EX.Rt_number == RT(&IF_ID.Instr)) || (ID_EX.Rt_number == RS(&IF_ID.Instr)))){
 		
-		printf("lw Hazard!!\n");
 		ID_EX.WB_RegWrite = 0;
 		ID_EX.WB_MemtoReg = 0;
 		ID_EX.M_Branch = 0;
@@ -132,8 +161,7 @@ void ID_stage(){
 	
 		return;
 	}
-	else if((FORWARDING_SET != 1) && EX_MEMRegWrite && (EX_MEMRegisterRd != 0) && (EX_MEMRegisterRd == RS(&IF_ID.Instr))){	
-		printf("r Hazard!!\n");
+	else if((FORWARDING_SET != 1) && EX_MEM.WB_RegWrite && (EX_MEM.Destination_Register_number != 0) && (EX_MEM.Destination_Register_number == RS(&IF_ID.Instr))){	
 		ID_EX.WB_RegWrite = 0;
 		ID_EX.WB_MemtoReg = 0;
 		ID_EX.M_Branch = 0;
@@ -148,8 +176,7 @@ void ID_stage(){
 
 		return;
 	}
-	else if((FORWARDING_SET != 1) && EX_MEMRegWrite && (EX_MEMRegisterRd != 0) && (EX_MEMRegisterRd == RT(&IF_ID.Instr))){
-		printf("r Hazard!!\n");
+	else if((FORWARDING_SET != 1) && EX_MEM.WB_RegWrite && (EX_MEM.Destination_Register_number != 0) && (EX_MEM.Destination_Register_number == RT(&IF_ID.Instr))){
 		ID_EX.WB_RegWrite = 0;
 		ID_EX.WB_MemtoReg = 0;
 		ID_EX.M_Branch = 0;
@@ -164,8 +191,7 @@ void ID_stage(){
 
 		return;
 	}	
-	else if((FORWARDING_SET != 1) && MEM_WBRegWrite && (MEM_WBRegisterRd != 0) && (MEM_WBRegisterRd == RS(&IF_ID.Instr))){
-		printf("mem Hazard!!\n");
+	else if((FORWARDING_SET != 1) && EX_MEMRegWrite && (EX_MEMRegisterRd != 0) && (EX_MEMRegisterRd == RS(&IF_ID.Instr))){
 		ID_EX.WB_RegWrite = 0;
 		ID_EX.WB_MemtoReg = 0;
 		ID_EX.M_Branch = 0;
@@ -179,8 +205,7 @@ void ID_stage(){
 		IF_IDWrite = 0;		
 		return;
 	}
-	else if((FORWARDING_SET != 1) && MEM_WBRegWrite && (MEM_WBRegisterRd != 0) && (MEM_WBRegisterRd == RT(&IF_ID.Instr))){
-		printf("mem Hazard!!\n");
+	else if((FORWARDING_SET != 1) && EX_MEMRegWrite && (EX_MEMRegisterRd != 0) && (EX_MEMRegisterRd == RT(&IF_ID.Instr))){
 		ID_EX.WB_RegWrite = 0;
 		ID_EX.WB_MemtoReg = 0;
 		ID_EX.M_Branch = 0;
@@ -194,9 +219,9 @@ void ID_stage(){
 		IF_IDWrite = 0;		
 		return;
 	}
+	
 
 
-	ID_EX.NPC = IF_ID.NPC;
 	ID_EX.REG1_data = CURRENT_STATE.REGS[RS(&IF_ID.Instr)];
 	ID_EX.REG2_data = CURRENT_STATE.REGS[RT(&IF_ID.Instr)];
 	ID_EX.IMM = IF_ID.Instr.value & 0xffff;
@@ -208,9 +233,60 @@ void ID_stage(){
 	Jump_signal = 0;
 	Jump_address = 0;
 	PCWrite = 1;
-	printf("PCwrite = %d\n", PCWrite);
 	IF_IDWrite = 1;	
-	
+	IF_FLUSH = 0;	
+	BR_target = IF_ID.NPC + (ID_EX.IMM << 2);
+
+	if((NO_BRANCH_PREDICTION_SET == 1) && (OPCODE(&IF_ID.Instr) == 4 || OPCODE(&IF_ID.Instr) == 5)){
+		IF_IDWrite = 0;
+		PCWrite = 0;
+		IF_FLUSH = 1;
+
+	}
+	else if((NO_BRANCH_PREDICTION_SET ==1) && EX_MEM.M_Branch == 1 ){
+		IF_IDWrite = 0;
+		PCWrite = 0;
+		IF_FLUSH = 1;
+	}
+	else if((NO_BRANCH_PREDICTION_SET ==1) && MEM_WB.M_Branch ==1){
+		IF_IDWrite = 0;
+		PCWrite = 0;
+		IF_FLUSH = 1;
+	}
+	else if ((NO_BRANCH_PREDICTION_SET == 0 ) && EX_MEM.M_Branch ==1 ) {
+		IF_FLUSH = 1;
+		CURRENT_STATE.PC = EX_MEM.BR_target;
+		CURRENT_STATE.PIPE[1] = 0;
+		
+		ID_EX.WB_RegWrite = 0;
+		ID_EX.WB_MemtoReg = 0;
+		ID_EX.M_Branch = 0;
+		ID_EX.M_MemRead = 0;
+		ID_EX.M_MemWrite = 0;
+		ID_EX.EX_RegDst = 0;
+		ID_EX.EX_ALUOp = 0;
+		ID_EX.EX_ALUSrc = 0;
+			
+		return;
+	}
+	else if ((NO_BRANCH_PREDICTION_SET == 0) && MEM_WBBranch == 1 && PCsrc == 0){
+		CURRENT_STATE.PC = CURRENT_STATE.PIPE[4] + BYTES_PER_WORD;
+		CURRENT_STATE.PIPE[1] = 0;
+		
+		ID_EX.WB_RegWrite = 0;
+		ID_EX.WB_MemtoReg = 0;
+		ID_EX.M_Branch = 0;
+		ID_EX.M_MemRead = 0;
+		ID_EX.M_MemWrite = 0;
+		ID_EX.EX_RegDst = 0;
+		ID_EX.EX_ALUOp = 0;
+		ID_EX.EX_ALUSrc = 0;
+		
+		return;
+	}
+
+
+
 	switch (OPCODE(&IF_ID.Instr))
     {
 	case 0x9:		//(0x001001)ADDIU
@@ -336,7 +412,9 @@ void ID_stage(){
 		ID_EX.EX_ALUOp = 0;
 		ID_EX.EX_ALUSrc = 0;
 		Jump_signal = 1;
-		Jump_address = (IF_ID.NPC & 0xf0000000) | TARGET(&IF_ID.Instr);
+		
+		
+		Jump_address = (IF_ID.NPC & 0xf0000000) | (TARGET(&IF_ID.Instr) << 2);
 		break;
 	case 0x3:		//(0x000011)JAL
 	    ID_EX.WB_RegWrite = 0;
@@ -358,9 +436,26 @@ void ID_stage(){
 //EX stage
 void EX_stage(){
 
+	//Forward signal initialize 
+	int ForwardA = 0;
+	int ForwardB = 0;
+
+	if (FORWARDING_SET == 1){
+
+		if ((EX_MEM.WB_RegWrite) && (EX_MEM.Destination_Register_number != 0) && (EX_MEM.Destination_Register_number == ID_EX.Rs_number))
+			ForwardA = 2;
+		if ((EX_MEM.WB_RegWrite) && (EX_MEM.Destination_Register_number != 0) && (EX_MEM.Destination_Register_number == ID_EX.Rt_number))
+			ForwardB = 2;
+
+		if ((MEM_WB.WB_RegWrite) && (MEM_WB.Destination_Register_number != 0) && (EX_MEMRegisterRd != ID_EX.Rs_number) && (MEM_WBRegisterRd == ID_EX.Rs_number))
+			ForwardA = 1;
+		if ((MEM_WB.WB_RegWrite) && (MEM_WB.Destination_Register_number != 0) && (EX_MEMRegisterRd != ID_EX.Rt_number) && (MEM_WBRegisterRd == ID_EX.Rt_number))
+			ForwardB = 1;
+	}
+	
+
 	//initialize
 	EX_MEM.ALU_OUT = 0;
-	EX_MEM.BR_TARGET = 0;
 	EX_MEM.MEM_IN = 0;
 	EX_MEM.Destination_Register_number = 0;
 
@@ -371,7 +466,7 @@ void EX_stage(){
 	EX_MEM.M_MemRead = 0;
 	EX_MEM.M_MemWrite = 0;
 
-	if(PCWrite == 0) CURRENT_STATE.PIPE[2] = 0;
+	if(IF_FLUSH != 1 && PCWrite == 0) CURRENT_STATE.PIPE[2] = 0;
 	else CURRENT_STATE.PIPE[2] = CURRENT_STATE.PIPE[1];
 
 	// passing control signal
@@ -382,25 +477,64 @@ void EX_stage(){
 	EX_MEM.M_MemRead = ID_EX.M_MemRead;
 
 
-	//passing branch target
-	EX_MEM.BR_TARGET = ID_EX.NPC + (ID_EX.IMM << 2);
-
+	EX_MEM.BR_target = BR_target;
 	
+
+	if(NO_BRANCH_PREDICTION_SET == 0 && MEM_WBBranch ==1 &&  PCsrc == 0){
+		CURRENT_STATE.PIPE[2] = 0;
+		
+		EX_MEM.Zero = 0;
+		EX_MEM.WB_RegWrite = 0;
+		EX_MEM.M_Branch = 0;
+		EX_MEM.WB_MemtoReg = 0;
+		EX_MEM.M_MemRead = 0;
+		EX_MEM.M_MemWrite = 0;
+
+	}
+
 
 	//For ALU_OUT, case of ALUOp : 1 = beq 2 = R format 0 = lw, sw(don't use ALU) 
 	int function_field = (ID_EX.IMM & 63);
 	
-	printf("imm : 0x%x\n", ID_EX.IMM);
-	printf("aluop : ???? %d\n", ID_EX.EX_ALUOp);
-	printf("function_field :/????  0x%x\n", function_field);
 
 
-	uint32_t ALU_source1 = ID_EX.REG1_data;	// making sources of ALU
+	uint32_t ALU_source1;	// making sources of ALU
+
+	if (ForwardA == 0)
+		ALU_source1 = ID_EX.REG1_data;
+	else if (ForwardA == 1){
+		ALU_source1 = MEM_WBWritedata;
+	}
+	else if (ForwardA == 2){
+		ALU_source1 = MEM_WB.ALU_OUT;
+	}
+
+
 	uint32_t ALU_source2;
+	uint32_t ALU_source2_source1;
+	if (ForwardB == 0){
+		ALU_source2_source1 = ID_EX.REG2_data;
+	}
+	else if (ForwardB == 1){
+		uint32_t Write_Register_data;
+		if (MEM_WB.WB_MemtoReg == 0)
+			Write_Register_data = MEM_WB.MEM_OUT;
+		else if (MEM_WB.WB_MemtoReg == 1)
+			Write_Register_data = MEM_WB.ALU_OUT;
+
+		ALU_source2_source1 = Write_Register_data;
+	}
+	else if (ForwardB == 2){
+		ALU_source2_source1 = EX_MEM.ALU_OUT;
+	}
+
 	if (ID_EX.EX_ALUSrc == 0)
-		ALU_source2 = ID_EX.REG2_data;
+		ALU_source2 = ALU_source2_source1;
 	else if(ID_EX.EX_ALUSrc == 1)
 		ALU_source2 = ID_EX.IMM;
+
+
+
 
 	if (ID_EX.EX_ALUOp == 0){ //sw, lw
 		EX_MEM.ALU_OUT = ALU_source1 + ALU_source2;
@@ -418,8 +552,9 @@ void EX_stage(){
 		EX_MEM.ALU_OUT = ALU_source1 + ALU_source2;
 	else if (ID_EX.EX_ALUOp == 5)	//andi
 		EX_MEM.ALU_OUT = ALU_source1 & ALU_source2;
-	else if (ID_EX.EX_ALUOp == 6)	//ori
+	else if (ID_EX.EX_ALUOp == 6){	//ori
 		EX_MEM.ALU_OUT = ALU_source1 | ALU_source2;
+	}
 	else if (ID_EX.EX_ALUOp == 7){	//sltiu
 		if (ALU_source1 < ALU_source2)
 			EX_MEM.ALU_OUT = 1;
@@ -432,11 +567,9 @@ void EX_stage(){
 		
 		switch(function_field){
 		    case 0x21:	//ADDU
-				printf("add!!!!!!\n");
 				EX_MEM.ALU_OUT = ALU_source1 + ALU_source2;
 		  		break;
 		   	case 0x24:	//AND
-				printf("1 : %d, 2: %d\n", ALU_source1, ALU_source2);
 		   		EX_MEM.ALU_OUT = ALU_source1 & ALU_source2;
 				break;
 		   	case 0x27:	//NOR
@@ -476,7 +609,7 @@ void EX_stage(){
 
 
 	// passing memory write data
-	EX_MEM.MEM_IN = ID_EX.REG2_data;
+	EX_MEM.MEM_IN = ALU_source2_source1;
 
 	//passing destination register number
 	if (ID_EX.EX_RegDst == 0) {
@@ -485,14 +618,18 @@ void EX_stage(){
 	else if(ID_EX.EX_RegDst == 1){
 		EX_MEM.Destination_Register_number = ID_EX.Rd_number;
 	}
-
-	EX_MEMRegWrite = EX_MEM.WB_RegWrite;	
-	EX_MEMRegisterRd = EX_MEM.Destination_Register_number;
-
 }
 
 //MEM stage
 void MEM_stage(){
+	//Forward initialize;
+	int Forward = 0;
+
+	if (FORWARDING_SET == 1){
+		if ((MEM_WB.M_MemRead == 1) && (EX_MEM.M_MemWrite == 1) && (MEM_WB.Destination_Register_number == EX_MEM.Destination_Register_number))
+			Forward = 1;
+
+	}
 
 	//initialize
 	MEM_WB.ALU_OUT = 0;
@@ -505,13 +642,22 @@ void MEM_stage(){
 	//passing control signal
 	MEM_WB.WB_RegWrite = EX_MEM.WB_RegWrite;
 	MEM_WB.WB_MemtoReg = EX_MEM.WB_MemtoReg;
-
+	MEM_WB.M_MemRead = EX_MEM.M_MemRead;
+	MEM_WB.M_Branch = EX_MEM.M_Branch;	
 	CURRENT_STATE.PIPE[3] = CURRENT_STATE.PIPE[2];
+	
+	uint32_t write_data;
 	//data memory unit
-	if (EX_MEM.M_MemWrite == 1)
-		mem_write_32(EX_MEM.ALU_OUT, EX_MEM.MEM_IN);
+	if (EX_MEM.M_MemWrite == 1){
+		if (Forward == 0)
+			write_data = EX_MEM.MEM_IN;
+		else if (Forward == 1){
+			MEM_WB.MEM_OUT;
+		}
+
+		mem_write_32(EX_MEM.ALU_OUT, write_data);
+	}
 	else if (EX_MEM.M_MemRead == 1){
-		printf("mem alu out : %d, mem read : %d\n", EX_MEM.ALU_OUT, mem_read_32(EX_MEM.ALU_OUT));
 		MEM_WB.MEM_OUT = mem_read_32(EX_MEM.ALU_OUT);
 	}
 
@@ -525,34 +671,40 @@ void MEM_stage(){
 	// passing Read data
 	MEM_WB.ALU_OUT = EX_MEM.ALU_OUT;
 
-	MEM_WBRegisterRd = MEM_WB.Destination_Register_number;
-	MEM_WBRegWrite = MEM_WB.WB_RegWrite;
+	EX_MEMRegWrite = EX_MEM.WB_RegWrite;	
+	EX_MEMRegisterRd = EX_MEM.Destination_Register_number;
+
+
+	
 
 }
 
 //WB stage
 void WB_stage(){
 
+	
+	MEM_WBRegisterRd = MEM_WB.Destination_Register_number;
+	MEM_WBRegWrite = MEM_WB.WB_RegWrite;
 	//for register write
 	uint32_t Write_Register_data;
 
-	
+	MEM_WBBranch = MEM_WB.M_Branch;	
 	CURRENT_STATE.PIPE[4] = CURRENT_STATE.PIPE[3];
 
-	printf("memtoreg : %d, memout ; %d, alu out : %d \n", MEM_WB.WB_MemtoReg, MEM_WB.MEM_OUT, MEM_WB.ALU_OUT);
 
-	if (MEM_WB.WB_MemtoReg == 0)
+	if (MEM_WB.WB_MemtoReg == 0){
 		Write_Register_data = MEM_WB.MEM_OUT;
+	}
 	else if (MEM_WB.WB_MemtoReg == 1)
 		Write_Register_data = MEM_WB.ALU_OUT;
 
+	MEM_WBWritedata = Write_Register_data;
+
 	if (MEM_WB.WB_RegWrite == 1) {
-		printf("reg number = %d, data to write = %d\n", MEM_WB.Destination_Register_number, Write_Register_data);
 		CURRENT_STATE.REGS[MEM_WB.Destination_Register_number] = Write_Register_data;
 	}
 	
 	if(CURRENT_STATE.PIPE[4] != 0) INSTRUCTION_COUNT ++;
-
 
 }
 

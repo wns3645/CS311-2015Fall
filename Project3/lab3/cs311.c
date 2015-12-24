@@ -117,7 +117,8 @@ void initialize(char *program_filename) {
 /*                                                             */
 /***************************************************************/
 int main(int argc, char *argv[]) {                              
-    char** tokens;
+
+	char** tokens;
     int count = 1;
     int addr1 = 0;
     int addr2 = 0;
@@ -130,8 +131,7 @@ int main(int argc, char *argv[]) {
     int pipe_dump_set = 0;
 	FORWARDING_SET = 0;
 	NO_BRANCH_PREDICTION_SET = 0;
-
-    /* Error Checking */
+	/* Error Checking */
     if (argc < 2)
     {
 	printf("Error: usage: %s [-nobp] [-f] [-m addr1:addr2] [-d] [-p] [-n num_instr] inputBinary\n", argv[0]);    
@@ -140,7 +140,6 @@ int main(int argc, char *argv[]) {
     }
 
     initialize(argv[argc-1]);
-
     //for checking parse result
     //print_parse_result();
 
@@ -160,9 +159,11 @@ int main(int argc, char *argv[]) {
 	}
 	else if(strcmp(argv[count], "-p") == 0)
 	    pipe_dump_set = 1;
-	else if(strcmp(argv[count], "-f" == 0))
+	else if(strcmp(argv[count], "-f") == 0){
 		FORWARDING_SET = 1;
-	else if(strcmp(argv[count], "-nobp" == 0))
+		printf("Forwarding_set = 1");
+	}
+	else if(strcmp(argv[count], "-nobp") == 0)
 		NO_BRANCH_PREDICTION_SET = 1;
 	else{
 	    printf("Error: usage: %s [-nobp] [-f] [-m addr1:addr2] [-d] [-p] [-n num_instr] inputBinary\n", argv[0]);
@@ -187,16 +188,18 @@ int main(int argc, char *argv[]) {
 	    if(pipe_dump_set) pdump();
 	    rdump();	
 	    if(mem_dump_set) mdump(addr1, addr2);
-	}
+
     }
+	}
     else{
 	
 	run(i, pipe_dump_set);
 	rdump();
 	
-	printf("inst count : %d\n", INSTRUCTION_COUNT);
+
 	if(mem_dump_set) mdump(addr1, addr2);
     }
 
+	printf("Simulator halted\n\n");
     return 0;
 }

@@ -29,13 +29,17 @@ mem_wb MEM_WB;
 int Jump_signal;
 int PCsrc;
 uint32_t Jump_address;
+uint32_t BR_target;
+uint32_t EM_MEMBR_target;
 int PCWrite;
 int IF_IDWrite;
+int IF_FLUSH;
 int EX_MEMRegWrite;
 int MEM_WBRegWrite;
 int EX_MEMRegisterRd;
 int MEM_WBRegisterRd;
-
+int MEM_WBWritedata;
+int MEM_WBBranch;
 
 int FORWARDING_SET;
 int NO_BRANCH_PREDICTION_SET;
@@ -251,7 +255,6 @@ void run(int num_cycles, int pdump_set) {
 	}
 	cycle();
 	CYCLE_COUNT++;	
-	printf("inst count = : %d, cycle num : %d\n", INSTRUCTION_COUNT, num_cycles);
 	if(pdump_set){
 		pdump();
 	}
@@ -372,7 +375,6 @@ void init_state_register()
     IF_ID.NPC = 0;
     
    
-    ID_EX.NPC = 0;
     ID_EX.REG1_data = 0;
     ID_EX.REG2_data = 0;
     ID_EX.IMM = 0 ;
@@ -391,7 +393,6 @@ void init_state_register()
 
 
     EX_MEM.ALU_OUT = 0;
-    EX_MEM.BR_TARGET = 0;
     EX_MEM.MEM_IN = 0;
     EX_MEM.Destination_Register_number = 0;
 
@@ -408,16 +409,25 @@ void init_state_register()
 
     MEM_WB.WB_RegWrite = 0;
     MEM_WB.WB_MemtoReg = 0;
+    MEM_WB.M_MemRead = 0;
+	MEM_WB.M_Branch = 0;
 
 	EX_MEMRegWrite = 0;
 	MEM_WBRegWrite = 0;
 	EX_MEMRegisterRd = 0;
 	MEM_WBRegisterRd = 0;
+	MEM_WBWritedata = 0;
+	MEM_WBBranch = 0;
+
 
     PCsrc = 0;
     Jump_signal = 0;
     Jump_address = 0;
 	PCWrite = 1;
 	IF_IDWrite = 1;
+    BR_target = 0;
+	EX_MEM.BR_target = 0;
+
+    IF_FLUSH = 0;
 }
 
