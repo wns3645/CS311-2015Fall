@@ -1,0 +1,256 @@
+----------< 10_bp_fo_nopipe >----------
+1,3c1
+< Simulating for 10 instructions...
+< 
+< Simulator halted
+---
+> Forwarding_set = 1Simulating for 10 cycles...
+19,23c17,21
+< R10: 0x00000929
+< R11: 0x0000222c
+< R12: 0x000029f4
+< R13: 0x00002e4b
+< R14: 0x00000443
+---
+> R10: 0x000004d2
+> R11: 0x0000000a
+> R12: 0x000007d2
+> R13: 0x00000c29
+> R14: 0x00000401
+64a63,64
+> 
+> Simulator halted
+----------< 10_bp_nofo_nopipe >----------
+1,3c1
+< Simulating for 10 instructions...
+< 
+< Simulator halted
+---
+> Simulating for 10 cycles...
+64a63,64
+> 
+> Simulator halted
+----------< 10_nobp_fo_nopipe >----------
+1,3c1
+< Simulating for 10 instructions...
+< 
+< Simulator halted
+---
+> Forwarding_set = 1Simulating for 10 cycles...
+19,23c17,21
+< R10: 0x00000929
+< R11: 0x0000222c
+< R12: 0x000029f4
+< R13: 0x00002e4b
+< R14: 0x00000443
+---
+> R10: 0x000004d2
+> R11: 0x0000000a
+> R12: 0x000007d2
+> R13: 0x00000c29
+> R14: 0x00000401
+64a63,64
+> 
+> Simulator halted
+----------< 10_nobp_nofo_nopipe >----------
+1,3c1
+< Simulating for 10 instructions...
+< 
+< Simulator halted
+---
+> Simulating for 10 cycles...
+64a63,64
+> 
+> Simulator halted
+----------< 30_bp_fo_nopipe >----------
+1,3c1
+< Simulating for 30 instructions...
+< 
+< Simulator halted
+---
+> Forwarding_set = 1Simulating for 30 cycles...
+7c5
+< PC: 0x00400074
+---
+> PC: 0x00400088
+19,30c17,28
+< R10: 0x00000929
+< R11: 0x0000222c
+< R12: 0x000029f4
+< R13: 0x00002e4b
+< R14: 0x00000443
+< R15: 0x00000041
+< R16: 0x00000805
+< R17: 0xffffd5d8
+< R18: 0xfffff7fa
+< R19: 0xffffdfe8
+< R20: 0x7fffeff4
+< R21: 0x7fffeb9d
+---
+> R10: 0x000004d2
+> R11: 0x0000000a
+> R12: 0x000007d2
+> R13: 0x00000c29
+> R14: 0x00000401
+> R15: 0x00000001
+> R16: 0x000007c5
+> R17: 0xffffd818
+> R18: 0xfffffa3a
+> R19: 0x00000000
+> R20: 0x00000000
+> R21: 0xfffffba9
+46,57c44,55
+< 0x10000008: 0x00000929
+< 0x1000000c: 0x0000222c
+< 0x10000010: 0x000029f4
+< 0x10000014: 0x00002e4b
+< 0x10000018: 0x00000443
+< 0x1000001c: 0x00000041
+< 0x10000020: 0x00000805
+< 0x10000024: 0xffffd5d8
+< 0x10000028: 0xfffff7fa
+< 0x1000002c: 0xffffdfe8
+< 0x10000030: 0x7fffeff4
+< 0x10000034: 0x7fffeb9d
+---
+> 0x10000008: 0x000004d2
+> 0x1000000c: 0x0000000a
+> 0x10000010: 0x000007d2
+> 0x10000014: 0x00000c29
+> 0x10000018: 0x00000401
+> 0x1000001c: 0x00000001
+> 0x10000020: 0x000007c5
+> 0x10000024: 0xffffd818
+> 0x10000028: 0xfffffa3a
+> 0x1000002c: 0x00000000
+> 0x10000030: 0x00000000
+> 0x10000034: 0xfffffba9
+64a63,64
+> 
+> Simulator halted
+----------< 30_bp_nofo_nopipe >----------
+1,3c1
+< Simulating for 30 instructions...
+< 
+< Simulator halted
+---
+> Simulating for 30 cycles...
+7c5
+< PC: 0x00400074
+---
+> PC: 0x00400088
+28,30c26,28
+< R19: 0xffffdfe8
+< R20: 0x7fffeff4
+< R21: 0x7fffeb9d
+---
+> R19: 0x00000000
+> R20: 0x00000000
+> R21: 0xfffffba9
+55,57c53,55
+< 0x1000002c: 0xffffdfe8
+< 0x10000030: 0x7fffeff4
+< 0x10000034: 0x7fffeb9d
+---
+> 0x1000002c: 0x00000000
+> 0x10000030: 0x00000000
+> 0x10000034: 0xfffffba9
+64a63,64
+> 
+> Simulator halted
+----------< 30_nobp_fo_nopipe >----------
+1,3c1
+< Simulating for 30 instructions...
+< 
+< Simulator halted
+---
+> Forwarding_set = 1Simulating for 30 cycles...
+7c5
+< PC: 0x00400074
+---
+> PC: 0x00400088
+19,30c17,28
+< R10: 0x00000929
+< R11: 0x0000222c
+< R12: 0x000029f4
+< R13: 0x00002e4b
+< R14: 0x00000443
+< R15: 0x00000041
+< R16: 0x00000805
+< R17: 0xffffd5d8
+< R18: 0xfffff7fa
+< R19: 0xffffdfe8
+< R20: 0x7fffeff4
+< R21: 0x7fffeb9d
+---
+> R10: 0x000004d2
+> R11: 0x0000000a
+> R12: 0x000007d2
+> R13: 0x00000c29
+> R14: 0x00000401
+> R15: 0x00000001
+> R16: 0x000007c5
+> R17: 0xffffd818
+> R18: 0xfffffa3a
+> R19: 0x00000000
+> R20: 0x00000000
+> R21: 0xfffffba9
+46,57c44,55
+< 0x10000008: 0x00000929
+< 0x1000000c: 0x0000222c
+< 0x10000010: 0x000029f4
+< 0x10000014: 0x00002e4b
+< 0x10000018: 0x00000443
+< 0x1000001c: 0x00000041
+< 0x10000020: 0x00000805
+< 0x10000024: 0xffffd5d8
+< 0x10000028: 0xfffff7fa
+< 0x1000002c: 0xffffdfe8
+< 0x10000030: 0x7fffeff4
+< 0x10000034: 0x7fffeb9d
+---
+> 0x10000008: 0x000004d2
+> 0x1000000c: 0x0000000a
+> 0x10000010: 0x000007d2
+> 0x10000014: 0x00000c29
+> 0x10000018: 0x00000401
+> 0x1000001c: 0x00000001
+> 0x10000020: 0x000007c5
+> 0x10000024: 0xffffd818
+> 0x10000028: 0xfffffa3a
+> 0x1000002c: 0x00000000
+> 0x10000030: 0x00000000
+> 0x10000034: 0xfffffba9
+64a63,64
+> 
+> Simulator halted
+----------< 30_nobp_nofo_nopipe >----------
+1,3c1
+< Simulating for 30 instructions...
+< 
+< Simulator halted
+---
+> Simulating for 30 cycles...
+7c5
+< PC: 0x00400074
+---
+> PC: 0x00400088
+28,30c26,28
+< R19: 0xffffdfe8
+< R20: 0x7fffeff4
+< R21: 0x7fffeb9d
+---
+> R19: 0x00000000
+> R20: 0x00000000
+> R21: 0xfffffba9
+55,57c53,55
+< 0x1000002c: 0xffffdfe8
+< 0x10000030: 0x7fffeff4
+< 0x10000034: 0x7fffeb9d
+---
+> 0x1000002c: 0x00000000
+> 0x10000030: 0x00000000
+> 0x10000034: 0xfffffba9
+64a63,64
+> 
+> Simulator halted
